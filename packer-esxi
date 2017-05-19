@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# exit on any error
+set -e
+
 # configuration
 export PACKER_CACHE_DIR="$HOME/.packer"
 
@@ -19,84 +22,51 @@ function usage() {
 
     # print help text
     cat <<USAGE
-
 Usage:
   $0 [Options] <Args>
 
 Options:
-  -h                    Print this help text
-  -s <server>           The ESXi server
-  -u <username>         The ESXi username
-  -p <password>         The ESXi password
-  -d <datastore>        The ESXi datastore
-  -n <name>             The VM name
-  -c <cores>            The number of virtual CPU Cores of the VM
-  -r <ram>              The RAM size of the VM (in MB)
-  -m <disk>             The Disk size of the VM (in GB)
-  -i <network>          The Network name of the VM
-  -o <os>               The type of the operating system (e.g. ubuntu-trusty)
-  -k <layout>           The keyboard layout of the OS (e.g. de)
-  -l <locale>           The locale of the OS (e.g. de_DE.UTF-8)
-  -t <timezone>         The timezone of the OS (e.g. GMT+1)
+  --esxi-server         <server>        The ESXi server
+  --esxi-username       <username>      The ESXi username
+  --esxi-password       <password>      The ESXi password
+  --esxi-datastore      <datastore>     The ESXi datastore
+  --vm-name             <name>          The VM name
+  --vm-cores            <cores>         The number of virtual CPU Cores of the VM
+  --vm-ram-size         <ram>           The RAM size of the VM (in MB)
+  --vm-disk-size        <disk>          The Disk size of the VM (in GB)
+  --vm-network          <network>       The Network name of the VM
+  --os-type             <os>            The type of the OS
+  --os-username         <username>      The username of the OS
+  --os-password         <password>      The password of the OS
+  --os-domain           <domain>        The network domain of the OS
+  --os-keyboard-layout  <layout>        The keyboard layout of the OS
+  --os-locale           <locale>        The locale of the OS
+  --os-timezone         <timezone>      The timezone of the OS
+  --help                                Print this help text
+
+Example:
+  $0 --esxi-server esxi.my.domain \\
+     --esxi-username root \\
+     --esxi-password my-password \\
+     --esxi-datastore my-datastore \\
+     --vm-name my-vm \\
+     --vm-cores 1 \\
+     --vm-ram-size  512 \\
+     --vm-disk-size 10 \\
+     --vm-network "VM Network" \\
+     --os-type ubuntu-trusty \\
+     --os-username my-username \\
+     --os-password my-password \\
+     --os-domain my.domain \\
+     --os-locale de_DE.UTF-8 \\
+     --os-keyboard-layout de \\
+     --os-timezone Europe/Berlin
 
 USAGE
 
     # exit with error
     exit -1
 }
-
-# get command line arguments
-while getopts s:u:p:d:n:c:r:m:i:o:k:l:t:h opt
-do
-    case $opt in
-        s)
-            esxiServer="$OPTARG"
-        ;;
-        u)
-            esxiUsername="$OPTARG"
-        ;;
-        p)
-            esxiPassword="$OPTARG"
-        ;;
-        d)
-            esxiDatastore="$OPTARG"
-        ;;
-        n)
-            vmName="$OPTARG"
-        ;;
-        c)
-            vmCores="$OPTARG"
-        ;;
-        r)
-            vmRamSize="$OPTARG"
-        ;;
-        m)
-            vmDiskSize="$OPTARG"
-        ;;
-        i)
-            vmNetwork="$OPTARG"
-        ;;
-        o)
-            osType="$OPTARG"
-        ;;
-        k)
-            osKeyboardLayout="$OPTARG"
-        ;;
-        l)
-            osLocale="$OPTARG"
-        ;;
-        t)
-            osTimezone="$OPTARG"
-        ;;
-        h)
-            usage
-        ;;
-        \?)
-            log "ERROR" "Invalid option: -$OPTARG"
-            exit -1
-        ;;
-    esac
-done
 
 # print application title
 echo ""
@@ -105,8 +75,72 @@ echo "Packer ESXi VM Provisioner"
 echo "--------------------------"
 echo ""
 
+# get command line arguments
+options=$@
+arguments=($options)
+i=0
+
+for argument in $options
+do
+    i=$((i + 1))
+
+    case $argument in
+        --esxi-server)
+            esxiServer="${arguments[i]}"
+        ;;
+        --esxi-username)
+            esxiUsername="${arguments[i]}"
+        ;;
+        --esxi-password)
+            esxiPassword="${arguments[i]}"
+        ;;
+        --esxi-datastore)
+            esxiDatastore="${arguments[i]}"
+        ;;
+        --vm-name)
+            vmName="${arguments[i]}"
+        ;;
+        --vm-cores)
+            vmCores="${arguments[i]}"
+        ;;
+        --vm-ram-size)
+            vmRamSize="${arguments[i]}"
+        ;;
+        --vm-disk-size)
+            vmDiskSize="${arguments[i]}"
+        ;;
+        --vm-network)
+            vmNetwork="${arguments[i]}"
+        ;;
+        --os-type)
+            osType="${arguments[i]}"
+        ;;
+        --os-username)
+            osUsername="${arguments[i]}"
+        ;;
+        --os-password)
+            osPassword="${arguments[i]}"
+        ;;
+        --os-domain)
+            osDomain="${arguments[i]}"
+        ;;
+        --os-keyboard-layout)
+            osKeyboardLayout="${arguments[i]}"
+        ;;
+        --os-locale)
+            osLocale="${arguments[i]}"
+        ;;
+        --os-timezone)
+            osTimezone="${arguments[i]}"
+        ;;
+        --help)
+            usage
+        ;;
+    esac
+done
+
 # read parameters from user input if not specified
-if [ "$esxiServer" == "" ] ; then read -p "ESXi Host: " esxiServer ; fi
+if [ "$esxiServer" == "" ] ; then read -p "ESXi Server: " esxiServer ; fi
 if [ "$esxiUsername" == "" ] ; then read -p "ESXi Username: " esxiUsername ; fi
 if [ "$esxiPassword" == "" ] ; then read -s -p "ESXi Password: " esxiPassword && echo "" ; fi
 if [ "$esxiDatastore" == "" ] ; then read -p "ESXi Datastore: " esxiDatastore ; fi
@@ -116,6 +150,9 @@ if [ "$vmRamSize" == "" ] ; then read -p "VM RAM Size (in MB): " vmRamSize ; fi
 if [ "$vmDiskSize" == "" ] ; then read -p "VM Disk Size (in GB): " vmDiskSize ; fi
 if [ "$vmNetwork" == "" ] ; then read -p "VM Network: " vmNetwork ; fi
 if [ "$osType" == "" ] ; then read -p "OS Type: " osType ; fi
+if [ "$osUsername" == "" ] ; then read -p "OS Username: " osUsername ; fi
+if [ "$osPassword" == "" ] ; then read -s -p "OS Password: " osPassword && echo "" ; fi
+if [ "$osDomain" == "" ] ; then read -p "OS Domain: " osDomain ; fi
 if [ "$osKeyboardLayout" == "" ] ; then read -p "OS Keyboard Layout: " osKeyboardLayout ; fi
 if [ "$osLocale" == "" ] ; then read -p "OS Locale: " osLocale ; fi
 if [ "$osTimezone" == "" ] ; then read -p "OS Timezone: " osLocale ; fi
@@ -138,6 +175,9 @@ sed -i 's|'\${vmRamSize}'|'$vmRamSize'|g' "$packerFile" "$preseedFile" "$bootstr
 sed -i 's|'\${vmDiskSize}'|'$vmDiskSize'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
 sed -i 's|'\${vmNetwork}'|'$vmNetwork'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
 sed -i 's|'\${osType}'|'$osType'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
+sed -i 's|'\${osUsername}'|'$osUsername'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
+sed -i 's|'\${osPassword}'|'$osPassword'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
+sed -i 's|'\${osDomain}'|'$osDomain'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
 sed -i 's|'\${osKeyboardLayout}'|'$osKeyboardLayout'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
 sed -i 's|'\${osLocale}'|'$osLocale'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
 sed -i 's|'\${osTimezone}'|'$osTimezone'|g' "$packerFile" "$preseedFile" "$bootstrapFile"

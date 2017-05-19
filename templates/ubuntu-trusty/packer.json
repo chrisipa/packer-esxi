@@ -11,9 +11,9 @@
     "iso_checksum": "dde07d37647a1d2d9247e33f14e91acb10445a97578384896b4e1d985f754cc1",
     "iso_checksum_type": "sha256",
 
-    "ssh_username": "chrisipa",
-    "ssh_password": "chrisipa",
-    "ssh_timeout": "15m",
+    "ssh_username": "${osUsername}",
+    "ssh_password": "${osUsername}",
+    "ssh_timeout": "30m",
 
     "disk_type_id": "thin",
     "disk_size": "${vmDiskSize}",
@@ -34,7 +34,7 @@
         "initrd=/install/initrd.gz -- <enter>"
     ],
 
-    "shutdown_command": "echo 'shutdown -P now' > shutdown.sh; echo 'chrisipa'|sudo -S sh 'shutdown.sh'",
+    "shutdown_command": "echo 'shutdown -P now' > shutdown.sh ; echo '${osUsername}' | sudo -S sh 'shutdown.sh'",
 
     "remote_type": "esx5",
     "remote_host": "${esxiServer}",
@@ -57,7 +57,7 @@
         "${tmpFolder}/bootstrap.sh"
       ],
 
-      "execute_command": "echo 'chrisipa' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
+      "execute_command": "echo '${osUsername}' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
     }
   ]
 }
