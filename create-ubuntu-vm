@@ -1,0 +1,100 @@
+#!/bin/bash
+
+# configuration
+export PACKER_CACHE_DIR="$HOME/.packer"
+
+# get script folder
+scriptPath="$(readlink -f $0)"
+scriptFolder="$(dirname $scriptPath)"
+
+# ---------------------------------------------------------------
+# Function for printing the usage of this script
+# ---------------------------------------------------------------
+function usage() {
+
+    # print help text
+    cat <<USAGE
+
+Usage:
+  $0 [Options] <Args>
+
+Options:
+  -h                    Print this help text
+  -s <server>           The ESXi server
+  -u <username>         The ESXi username
+  -p <password>         The ESXi password
+  -d <datastore>        The ESXi datastore
+  -n <name>             The VM name
+  -c <cores>            The number of virtual CPU Cores of the VM
+  -r <ram>              The RAM size of the VM (in MB)
+  -m <disk>             The Disk size of the VM (in GB)
+  -i <network>          The Network name of the VM
+  -l <locale>           The locale of the OS (e.g. de_DE.UTF-8)
+
+USAGE
+
+    # exit with error
+    exit -1
+}
+
+# get command line arguments
+while getopts s:u:p:d:n:c:r:m:i:l:h opt
+do
+    case $opt in
+        s)
+            esxiServer="$OPTARG"
+        ;;
+        u)
+            esxiUsername="$OPTARG"
+        ;;
+        p)
+            esxiPassword="$OPTARG"
+        ;;
+        d)
+            esxiDatastore="$OPTARG"
+        ;;
+        n)
+            vmName="$OPTARG"
+        ;;
+        c)
+            vmCores="$OPTARG"
+        ;;
+        r)
+            vmRamSize="$OPTARG"
+        ;;
+        m)
+            vmDiskSize="$OPTARG"
+        ;;
+        i)
+            vmNetwork="$OPTARG"
+        ;;
+        l)
+            osLocale="$OPTARG"
+        ;;
+        h)
+            usage
+        ;;
+        \?)
+            log "ERROR" "Invalid option: -$OPTARG"
+            exit -1
+        ;;
+    esac
+done
+
+# read parameters from user input if not specified
+if [ "$esxiServer" == "" ] ; then read -p "ESXi Host: " esxiServer ; fi
+if [ "$esxiUsername" == "" ] ; then read -p "ESXi Username: " esxiUsername ; fi
+if [ "$esxiPassword" == "" ] ; then read -s -p "ESXi Password: " esxiPassword && echo "" ; fi
+if [ "$esxiDatastore" == "" ] ; then read -p "ESXi Datastore: " esxiDatastore ; fi
+if [ "$vmName" == "" ] ; then read -p "VM Name: " vmName ; fi
+if [ "$vmCores" == "" ] ; then read -p "VM CPU Cores: " vmCores ; fi
+if [ "$vmRamSize" == "" ] ; then read -p "VM RAM Size (in MB): " vmRamSize ; fi
+if [ "$vmDiskSize" == "" ] ; then read -p "VM Disk Size (in GB): " vmDiskSize ; fi
+if [ "$vmNetwork" == "" ] ; then read -p "VM Network: " vmNetwork ; fi
+if [ "$osLocale" == "" ] ; then read -p "OS Locale: " osLocale ; fi
+
+# calculate vm disk size in GB
+vmDiskSize=$(($vmDiskSize * 1000))
+
+# create esxi vm with packer
+packer build -var scriptFolder="$scriptFolder" -var esxiServer="$esxiServer" -var esxiDatastore="$esxiDatastore" -var esxiUsername="$esxiUsername" -var esxiPassword="$esxiPassword" -var vmName="$vmName" -var vmCores="$vmCores" -var vmRamSize="$vmRamSize" -var vmDiskSize="$vmDiskSize" -var vmNetwork="$vmNetwork" -var osLocale="$osLocale" "$scriptFolder/ubuntu-1404-base.json"

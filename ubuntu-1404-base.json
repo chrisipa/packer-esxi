@@ -1,0 +1,63 @@
+{
+  "builders": [{
+    "name": "{{user `vmName`}}",
+    "vm_name": "{{user `vmName`}}",
+    "type": "vmware-iso",
+    "guest_os_type": "ubuntu-64",
+    "tools_upload_flavor": "linux",
+    "headless": false,
+
+    "iso_url": "http://releases.ubuntu.com/trusty/ubuntu-14.04.5-server-amd64.iso",
+    "iso_checksum": "dde07d37647a1d2d9247e33f14e91acb10445a97578384896b4e1d985f754cc1",
+    "iso_checksum_type": "sha256",
+
+    "ssh_username": "chrisipa",
+    "ssh_password": "chrisipa",
+    "ssh_timeout": "15m",
+
+    "disk_type_id": "thin",
+    "disk_size": "{{user `vmDiskSize`}}",
+
+    "floppy_files": [
+      "{{user `scriptFolder`}}/ubuntu-preseed.cfg"
+    ],
+
+    "boot_command": [
+        "<esc><esc><enter><wait>",
+        "/install/vmlinuz noapic ",
+        "preseed/file=/floppy/ubuntu-preseed.cfg ",
+        "debian-installer=en_US auto locale=en_US kbd-chooser/method=en ",
+        "hostname={{ .Name }} ",
+        "fb=false debconf/frontend=noninteractive ",
+        "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA ",
+        "keyboard-configuration/variant=USA console-setup/ask_detect=false ",
+        "initrd=/install/initrd.gz -- <enter>"
+    ],
+
+    "shutdown_command": "echo 'shutdown -P now' > shutdown.sh; echo 'chrisipa'|sudo -S sh 'shutdown.sh'",
+
+    "remote_type": "esx5",
+    "remote_host": "{{user `esxiServer`}}",
+    "remote_datastore": "{{user `esxiDatastore`}}",
+    "remote_username": "{{user `esxiUsername`}}",
+    "remote_password": "{{user `esxiPassword`}}",
+    "keep_registered": true,
+
+    "vmx_data": {
+      "numvcpus": "{{user `vmCores`}}",
+      "memsize": "{{user `vmRamSize`}}",
+      "ethernet0.networkName": "{{user `vmNetwork`}}"
+    }
+  }],
+
+  "provisioners": [
+    {
+      "type": "shell",
+      "scripts": [
+        "{{user `scriptFolder`}}/bootstrap.sh"
+      ],
+
+      "execute_command": "echo 'chrisipa' | {{ .Vars }} sudo -E -S bash '{{ .Path }}' {{user `osLocale`}}"
+    }
+  ]
+}
