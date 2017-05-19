@@ -10,10 +10,28 @@ export PACKER_CACHE_DIR="$HOME/.packer"
 scriptPath="$(readlink -f $0)"
 scriptName="$(basename $scriptPath)"
 scriptFolder="$(dirname $scriptPath)"
-tmpFolder="/tmp/packer/$(date +%s)"
+workFolder="/tmp/packer"
+tmpFolder="$workFolder/$(date +%s)"
 packerFile="$tmpFolder/packer.json"
 preseedFile="$tmpFolder/preseed.cfg"
 bootstrapFile="$tmpFolder/bootstrap.sh"
+
+# --------------------------------------------------------
+# Function for creating log entries on the console
+# --------------------------------------------------------
+# $1 - Log level
+# $2 - Log text
+# --------------------------------------------------------
+function log() {
+
+    # read parameters
+    local level="$1"
+    local text="$2"
+
+    # create log message
+    local now=$(date +"%d-%m-%Y %H:%M:%S")
+    echo -e "\n$now [$level] $text\n"
+}
 
 # ---------------------------------------------------------------
 # Function for printing the usage of this script
@@ -76,6 +94,7 @@ echo "--------------------------"
 echo ""
 
 # get command line arguments
+log "INFO" "Getting arguments from command line"
 options=$@
 arguments=($options)
 i=0
@@ -139,7 +158,8 @@ do
     esac
 done
 
-# read parameters from user input if not specified
+# read arguments from user input if not specified
+log "INFO" "Reading arguments from user input if not specified"
 if [ "$esxiServer" == "" ] ; then read -p "ESXi Server: " esxiServer ; fi
 if [ "$esxiUsername" == "" ] ; then read -p "ESXi Username: " esxiUsername ; fi
 if [ "$esxiPassword" == "" ] ; then read -s -p "ESXi Password: " esxiPassword && echo "" ; fi
@@ -158,13 +178,20 @@ if [ "$osLocale" == "" ] ; then read -p "OS Locale: " osLocale ; fi
 if [ "$osTimezone" == "" ] ; then read -p "OS Timezone: " osLocale ; fi
 
 # calculate vm disk size in GB
+log "INFO" "Calculating VM disk size from Megabytes to Gigabytes"
 vmDiskSize=$(($vmDiskSize * 1000))
 
-# copy template files to temp folder
+# create temp folder
+log "INFO" "Creating temp folder '$tmpFolder'"
 mkdir -p "$tmpFolder"
-cp "$scriptFolder/templates/$osType/"* "$tmpFolder"
+
+# copy template files to temp folder
+templateFolder="$scriptFolder/templates/$osType"
+log "INFO" "Copying files from template folder '$templateFolder' to temp folder '$tmpFolder'"
+cp "$templateFolder/"* "$tmpFolder"
 
 # replace variables in template files
+log "INFO" "Replacing variables in template files"
 sed -i 's|'\${esxiServer}'|'$esxiServer'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
 sed -i 's|'\${esxiUsername}'|'$esxiUsername'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
 sed -i 's|'\${esxiPassword}'|'$esxiPassword'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
@@ -184,16 +211,20 @@ sed -i 's|'\${osTimezone}'|'$osTimezone'|g' "$packerFile" "$preseedFile" "$boots
 sed -i 's|'\${tmpFolder}'|'$tmpFolder'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
 
 # create esxi vm with packer
+log "INFO" "Creating VM with packer from file '$packerFile'"
 packer build "$packerFile"
 
-# cleanup template files
-if [ -d "$tmpFolder" ]
+# cleanup work folder
+log "INFO" "Cleaning up work folder '$workFolder'"
+if [ -d "$workFolder" ]
 then
-    rm -rf "$tmpFolder"
+    rm -rf "$workFolder"
 fi
 
 # get esxi vm id
-esxiVmId=$(sshpass -p ${esxiPassword} ssh ${esxiUsername}@${esxiServer} vim-cmd vmsvc/getallvms | grep ${vmName} | awk '{print $1}')
+log "INFO" "Getting VM ID from VM with name '$vmName'"
+vmId=$(sshpass -p ${esxiPassword} ssh ${esxiUsername}@${esxiServer} vim-cmd vmsvc/getallvms | grep ${vmName} | awk '{print $1}')
 
 # power on esxi vm
-sshpass -p ${esxiPassword} ssh ${esxiUsername}@${esxiServer} vim-cmd vmsvc/power.on ${esxiVmId}
+log "INFO" "Powering on VM with ID '$vmId'"
+sshpass -p ${esxiPassword} ssh ${esxiUsername}@${esxiServer} vim-cmd vmsvc/power.on ${vmId} >> /dev/null
