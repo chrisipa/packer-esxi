@@ -1,0 +1,159 @@
+#!/bin/bash
+
+# configuration
+export PACKER_CACHE_DIR="$HOME/.packer"
+
+# calculate variables
+scriptPath="$(readlink -f $0)"
+scriptName="$(basename $scriptPath)"
+scriptFolder="$(dirname $scriptPath)"
+tmpFolder="/tmp/packer/$(date +%s)"
+packerFile="$tmpFolder/packer.json"
+preseedFile="$tmpFolder/preseed.cfg"
+bootstrapFile="$tmpFolder/bootstrap.sh"
+
+# ---------------------------------------------------------------
+# Function for printing the usage of this script
+# ---------------------------------------------------------------
+function usage() {
+
+    # print help text
+    cat <<USAGE
+
+Usage:
+  $0 [Options] <Args>
+
+Options:
+  -h                    Print this help text
+  -s <server>           The ESXi server
+  -u <username>         The ESXi username
+  -p <password>         The ESXi password
+  -d <datastore>        The ESXi datastore
+  -n <name>             The VM name
+  -c <cores>            The number of virtual CPU Cores of the VM
+  -r <ram>              The RAM size of the VM (in MB)
+  -m <disk>             The Disk size of the VM (in GB)
+  -i <network>          The Network name of the VM
+  -o <os>               The type of the operating system (e.g. ubuntu-trusty)
+  -k <layout>           The keyboard layout of the OS (e.g. de)
+  -l <locale>           The locale of the OS (e.g. de_DE.UTF-8)
+  -t <timezone>         The timezone of the OS (e.g. GMT+1)
+
+USAGE
+
+    # exit with error
+    exit -1
+}
+
+# get command line arguments
+while getopts s:u:p:d:n:c:r:m:i:o:k:l:t:h opt
+do
+    case $opt in
+        s)
+            esxiServer="$OPTARG"
+        ;;
+        u)
+            esxiUsername="$OPTARG"
+        ;;
+        p)
+            esxiPassword="$OPTARG"
+        ;;
+        d)
+            esxiDatastore="$OPTARG"
+        ;;
+        n)
+            vmName="$OPTARG"
+        ;;
+        c)
+            vmCores="$OPTARG"
+        ;;
+        r)
+            vmRamSize="$OPTARG"
+        ;;
+        m)
+            vmDiskSize="$OPTARG"
+        ;;
+        i)
+            vmNetwork="$OPTARG"
+        ;;
+        o)
+            osType="$OPTARG"
+        ;;
+        k)
+            osKeyboardLayout="$OPTARG"
+        ;;
+        l)
+            osLocale="$OPTARG"
+        ;;
+        t)
+            osTimezone="$OPTARG"
+        ;;
+        h)
+            usage
+        ;;
+        \?)
+            log "ERROR" "Invalid option: -$OPTARG"
+            exit -1
+        ;;
+    esac
+done
+
+# print application title
+echo ""
+echo "--------------------------"
+echo "Packer ESXi VM Provisioner"
+echo "--------------------------"
+echo ""
+
+# read parameters from user input if not specified
+if [ "$esxiServer" == "" ] ; then read -p "ESXi Host: " esxiServer ; fi
+if [ "$esxiUsername" == "" ] ; then read -p "ESXi Username: " esxiUsername ; fi
+if [ "$esxiPassword" == "" ] ; then read -s -p "ESXi Password: " esxiPassword && echo "" ; fi
+if [ "$esxiDatastore" == "" ] ; then read -p "ESXi Datastore: " esxiDatastore ; fi
+if [ "$vmName" == "" ] ; then read -p "VM Name: " vmName ; fi
+if [ "$vmCores" == "" ] ; then read -p "VM CPU Cores: " vmCores ; fi
+if [ "$vmRamSize" == "" ] ; then read -p "VM RAM Size (in MB): " vmRamSize ; fi
+if [ "$vmDiskSize" == "" ] ; then read -p "VM Disk Size (in GB): " vmDiskSize ; fi
+if [ "$vmNetwork" == "" ] ; then read -p "VM Network: " vmNetwork ; fi
+if [ "$osType" == "" ] ; then read -p "OS Type: " osType ; fi
+if [ "$osKeyboardLayout" == "" ] ; then read -p "OS Keyboard Layout: " osKeyboardLayout ; fi
+if [ "$osLocale" == "" ] ; then read -p "OS Locale: " osLocale ; fi
+if [ "$osTimezone" == "" ] ; then read -p "OS Timezone: " osLocale ; fi
+
+# calculate vm disk size in GB
+vmDiskSize=$(($vmDiskSize * 1000))
+
+# copy template files to temp folder
+mkdir -p "$tmpFolder"
+cp "$scriptFolder/templates/$osType/"* "$tmpFolder"
+
+# replace variables in template files
+sed -i 's|'\${esxiServer}'|'$esxiServer'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
+sed -i 's|'\${esxiUsername}'|'$esxiUsername'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
+sed -i 's|'\${esxiPassword}'|'$esxiPassword'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
+sed -i 's|'\${esxiDatastore}'|'$esxiDatastore'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
+sed -i 's|'\${vmName}'|'$vmName'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
+sed -i 's|'\${vmCores}'|'$vmCores'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
+sed -i 's|'\${vmRamSize}'|'$vmRamSize'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
+sed -i 's|'\${vmDiskSize}'|'$vmDiskSize'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
+sed -i 's|'\${vmNetwork}'|'$vmNetwork'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
+sed -i 's|'\${osType}'|'$osType'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
+sed -i 's|'\${osKeyboardLayout}'|'$osKeyboardLayout'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
+sed -i 's|'\${osLocale}'|'$osLocale'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
+sed -i 's|'\${osTimezone}'|'$osTimezone'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
+sed -i 's|'\${tmpFolder}'|'$tmpFolder'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
+
+# create esxi vm with packer
+packer build "$packerFile"
+
+# cleanup template files
+if [ -d "$tmpFolder" ]
+then
+    rm -rf "$tmpFolder"
+fi
+
+# get esxi vm id
+esxiVmId=$(sshpass -p ${esxiPassword} ssh ${esxiUsername}@${esxiServer} vim-cmd vmsvc/getallvms | grep ${vmName} | awk '{print $1}')
+
+# power on esxi vm
+sshpass -p ${esxiPassword} ssh ${esxiUsername}@${esxiServer} vim-cmd vmsvc/power.on ${esxiVmId}

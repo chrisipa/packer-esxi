@@ -1,7 +1,7 @@
 {
   "builders": [{
-    "name": "{{user `vmName`}}",
-    "vm_name": "{{user `vmName`}}",
+    "name": "${vmName}",
+    "vm_name": "${vmName}",
     "type": "vmware-iso",
     "guest_os_type": "ubuntu-64",
     "tools_upload_flavor": "linux",
@@ -16,18 +16,18 @@
     "ssh_timeout": "15m",
 
     "disk_type_id": "thin",
-    "disk_size": "{{user `vmDiskSize`}}",
+    "disk_size": "${vmDiskSize}",
 
     "floppy_files": [
-      "{{user `scriptFolder`}}/ubuntu-preseed.cfg"
+      "${tmpFolder}/preseed.cfg"
     ],
 
     "boot_command": [
         "<esc><esc><enter><wait>",
         "/install/vmlinuz noapic ",
-        "preseed/file=/floppy/ubuntu-preseed.cfg ",
+        "preseed/file=/floppy/preseed.cfg ",
         "debian-installer=en_US auto locale=en_US kbd-chooser/method=en ",
-        "hostname={{ .Name }} ",
+        "hostname=${vmName} ",
         "fb=false debconf/frontend=noninteractive ",
         "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA ",
         "keyboard-configuration/variant=USA console-setup/ask_detect=false ",
@@ -37,16 +37,16 @@
     "shutdown_command": "echo 'shutdown -P now' > shutdown.sh; echo 'chrisipa'|sudo -S sh 'shutdown.sh'",
 
     "remote_type": "esx5",
-    "remote_host": "{{user `esxiServer`}}",
-    "remote_datastore": "{{user `esxiDatastore`}}",
-    "remote_username": "{{user `esxiUsername`}}",
-    "remote_password": "{{user `esxiPassword`}}",
+    "remote_host": "${esxiServer}",
+    "remote_datastore": "${esxiDatastore}",
+    "remote_username": "${esxiUsername}",
+    "remote_password": "${esxiPassword}",
     "keep_registered": true,
 
     "vmx_data": {
-      "numvcpus": "{{user `vmCores`}}",
-      "memsize": "{{user `vmRamSize`}}",
-      "ethernet0.networkName": "{{user `vmNetwork`}}"
+      "numvcpus": "${vmCores}",
+      "memsize": "${vmRamSize}",
+      "ethernet0.networkName": "${vmNetwork}"
     }
   }],
 
@@ -54,10 +54,10 @@
     {
       "type": "shell",
       "scripts": [
-        "{{user `scriptFolder`}}/bootstrap.sh"
+        "${tmpFolder}/bootstrap.sh"
       ],
 
-      "execute_command": "echo 'chrisipa' | {{ .Vars }} sudo -E -S bash '{{ .Path }}' {{user `osLocale`}}"
+      "execute_command": "echo 'chrisipa' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
     }
   ]
 }
