@@ -4,7 +4,7 @@ Packer ESXi VM Provisioner
 # Overview
 
 Simple bash script using packer for auto provisioning virtual machines to a VMWare ESXi server.
-This script has been tested with VMWare ESXi version 6. The following operating systems are supported:
+This script has been tested with VMWare ESXi version 6. At the moment the following operating systems are supported:
 
 * Ubuntu 14.04 (ubuntu-trusty)
 
