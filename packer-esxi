@@ -54,6 +54,7 @@ Options:
   --vm-disk-size        <disk>          The Disk size of the VM (in GB)
   --vm-network          <network>       The Network name of the VM
   --os-type             <os>            The type of the OS
+  --os-proxy            <proxy>         The proxy of the OS
   --os-username         <username>      The username of the OS
   --os-password         <password>      The password of the OS
   --os-domain           <domain>        The network domain of the OS
@@ -73,6 +74,7 @@ Example:
      --vm-disk-size 10 \\
      --vm-network "VM Network" \\
      --os-type ubuntu-trusty \\
+     --os-proxy none | http://10.10.10.1:3128/ \\
      --os-username my-username \\
      --os-password my-password \\
      --os-domain my.domain \\
@@ -94,7 +96,6 @@ echo "--------------------------"
 echo ""
 
 # get command line arguments
-log "INFO" "Getting arguments from command line"
 options=$@
 arguments=($options)
 i=0
@@ -134,6 +135,9 @@ do
         --os-type)
             osType="${arguments[i]}"
         ;;
+        --os-proxy)
+            osProxy="${arguments[i]}"
+        ;;
         --os-username)
             osUsername="${arguments[i]}"
         ;;
@@ -170,12 +174,19 @@ if [ "$vmRamSize" == "" ] ; then read -p "VM RAM Size (in MB): " vmRamSize ; fi
 if [ "$vmDiskSize" == "" ] ; then read -p "VM Disk Size (in GB): " vmDiskSize ; fi
 if [ "$vmNetwork" == "" ] ; then read -p "VM Network: " vmNetwork ; fi
 if [ "$osType" == "" ] ; then read -p "OS Type: " osType ; fi
+if [ "$osProxy" == "" ] ; then read -p "OS Proxy: " osProxy ; fi
 if [ "$osUsername" == "" ] ; then read -p "OS Username: " osUsername ; fi
 if [ "$osPassword" == "" ] ; then read -s -p "OS Password: " osPassword && echo "" ; fi
 if [ "$osDomain" == "" ] ; then read -p "OS Domain: " osDomain ; fi
 if [ "$osKeyboardLayout" == "" ] ; then read -p "OS Keyboard Layout: " osKeyboardLayout ; fi
 if [ "$osLocale" == "" ] ; then read -p "OS Locale: " osLocale ; fi
 if [ "$osTimezone" == "" ] ; then read -p "OS Timezone: " osLocale ; fi
+
+# reset proxy server variable if not a valid address
+if [[ "$osProxy" != http* ]]
+then
+    osProxy=""
+fi
 
 # calculate vm disk size in GB
 log "INFO" "Calculating VM disk size from Megabytes to Gigabytes"
@@ -202,6 +213,7 @@ sed -i 's|'\${vmRamSize}'|'$vmRamSize'|g' "$packerFile" "$preseedFile" "$bootstr
 sed -i 's|'\${vmDiskSize}'|'$vmDiskSize'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
 sed -i 's|'\${vmNetwork}'|'$vmNetwork'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
 sed -i 's|'\${osType}'|'$osType'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
+sed -i 's|'\${osProxy}'|'$osProxy'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
 sed -i 's|'\${osUsername}'|'$osUsername'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
 sed -i 's|'\${osPassword}'|'$osPassword'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
 sed -i 's|'\${osDomain}'|'$osDomain'|g' "$packerFile" "$preseedFile" "$bootstrapFile"

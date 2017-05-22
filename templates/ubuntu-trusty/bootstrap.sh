@@ -11,7 +11,7 @@ apt-get dist-upgrade -y
 apt-get install -y open-vm-tools
 
 # set timezone
-timedatectl set-timezone {osTimezone}
+timedatectl set-timezone ${osTimezone}
 
 # set locale
 locale-gen ${osLocale}
@@ -31,5 +31,13 @@ echo "" >> "$bashrcFile"
 echo "alias l='ls -altrh'" >> "$bashrcFile"
 echo "alias ..='cd ..'" >> "$bashrcFile"
 
-# show IP addresses
-ip addr show
+# get default IP address
+ipAddress="$(ip route get 8.8.8.8 | head -1 | cut -d' ' -f8)"
+
+# show how to login via ssh
+echo ""
+echo "---------"
+echo "SSH login"
+echo "---------"
+echo "ssh ${osUsername}@${ipAddress}"
+echo ""
