@@ -12,7 +12,7 @@ This script has been tested with VMWare ESXi version 6.
 
 ### SSH
 
-* Enable SSH access on ESXi Host
+* Enable SSH access on ESXi Host:
 
 ![Screenshot](https://raw.githubusercontent.com/chrisipa/packer-esxi/master/public/esxi-enable-ssh.png)
 
