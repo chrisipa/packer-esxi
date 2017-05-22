@@ -8,6 +8,16 @@ This script has been tested with VMWare ESXi version 6. At the moment the follow
 
 * Ubuntu 14.04 (ubuntu-trusty)
 
+# Features
+
+* Connect to ESXi server via SSH
+* Upload operating system ISO to datastore
+* Create virtual machine with specified parameters
+* Power on virtual machine and executing unattended operating system installation
+* Customize virtual machine with bash, ansible, chef, puppet and many more
+* Power off virtual machine and cleanup resources
+* Power on virtual machine to work with
+
 # Prerequisites
 
 ## ESXi Host
