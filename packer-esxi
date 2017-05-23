@@ -235,8 +235,8 @@ fi
 
 # get esxi vm id
 log "INFO" "Getting VM ID from VM with name '$vmName'"
-vmId=$(sshpass -p ${esxiPassword} ssh ${esxiUsername}@${esxiServer} vim-cmd vmsvc/getallvms | grep ${vmName} | awk '{print $1}')
+vmId=$(sshpass -p ${esxiPassword} ssh -o StrictHostKeyChecking=no ${esxiUsername}@${esxiServer} vim-cmd vmsvc/getallvms | grep ${vmName} | awk '{print $1}')
 
 # power on esxi vm
 log "INFO" "Powering on VM with ID '$vmId'"
-sshpass -p ${esxiPassword} ssh ${esxiUsername}@${esxiServer} vim-cmd vmsvc/power.on ${vmId} >> /dev/null
+sshpass -p ${esxiPassword} ssh -o StrictHostKeyChecking=no ${esxiUsername}@${esxiServer} vim-cmd vmsvc/power.on ${vmId} >> /dev/null
