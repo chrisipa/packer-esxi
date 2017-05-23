@@ -20,6 +20,10 @@ This script has been tested with VMWare ESXi version 6. At the moment the follow
 
 # Prerequisites
 
+## VM Network
+
+* The virtual machine relies on an existing DCHP server on the specified vm network
+
 ## ESXi Host
 
 ### SSH
@@ -82,10 +86,19 @@ This script has been tested with VMWare ESXi version 6. At the moment the follow
 
 * Install additional software packages:
   ```
-  sudo apt-get install git packer sshpass
+  sudo apt-get install git sshpass
+  ```
+
+* Download and install packer from the website:
+  ```
+  wget https://releases.hashicorp.com/packer/1.0.0/packer_1.0.0_linux_amd64.zip
+  sudo unzip packer_1.0.0_linux_amd64.zip -d /usr/local/bin
+  rm -f packer_1.0.0_linux_amd64.zip
   ```
 
 # Usage
+
+## Plain Linux
 
 * Checkout project from GitHub:
   ```
@@ -147,4 +160,43 @@ This script has been tested with VMWare ESXi version 6. At the moment the follow
        --os-keyboard-layout de \
        --os-timezone Europe/Berlin
 
+  ```
+
+## Docker
+
+* Run via docker command:
+  ```
+  docker run --rm -v $HOME/.packer:/root/.packer -it chrisipa/packer-esxi
+  ```
+
+# Integrations
+
+## Jenkins
+
+* You can easily integrate the docker container into a parameterized build:
+
+![Screenshot](https://raw.githubusercontent.com/chrisipa/packer-esxi/master/public/jenkins-integration.png)
+
+* Just execute a shell command with the following content:
+  ```
+  #!/bin/bash +x
+
+  docker run --rm -v $HOME/.packer:/root/.packer -t chrisipa/packer-esxi \
+  --esxi-server $ESXI_SERVER \
+  --esxi-username $ESXI_USERNAME \
+  --esxi-password $ESXI_PASSWORD \
+  --esxi-datastore $ESXI_DATASTORE \
+  --vm-name $VM_NAME \
+  --vm-cores $VM_CORES \
+  --vm-ram-size $VM_RAM_SIZE \
+  --vm-disk-size $VM_DISK_SIZE \
+  --vm-network $VM_NETWORK \
+  --os-type $OS_TYPE \
+  --os-proxy $OS_PROXY \
+  --os-username $OS_USERNAME \
+  --os-password $OS_PASSWORD \
+  --os-domain $OS_DOMAIN \
+  --os-locale $OS_LOCALE \
+  --os-keyboard-layout $OS_KEYBOARD_LAYOUT \
+  --os-timezone $OS_TIMEZONE
   ```
