@@ -189,21 +189,21 @@ This script has been tested with VMWare ESXi version 6. At the moment the follow
 
   # execute docker run
   docker run --rm -v $HOME/.packer:/root/.packer -t "$imageName" \
-  --esxi-server $ESXI_SERVER \
-  --esxi-username $ESXI_USERNAME \
-  --esxi-password $ESXI_PASSWORD \
-  --esxi-datastore $ESXI_DATASTORE \
-  --vm-name $VM_NAME \
-  --vm-cores $VM_CORES \
-  --vm-ram-size $VM_RAM_SIZE \
-  --vm-disk-size $VM_DISK_SIZE \
-  --vm-network $VM_NETWORK \
-  --os-type $OS_TYPE \
-  --os-proxy $OS_PROXY \
-  --os-username $OS_USERNAME \
-  --os-password $OS_PASSWORD \
-  --os-domain $OS_DOMAIN \
-  --os-locale $OS_LOCALE \
-  --os-keyboard-layout $OS_KEYBOARD_LAYOUT \
-  --os-timezone $OS_TIMEZONE
+  --esxi-server "$ESXI_SERVER" \
+  --esxi-username "$ESXI_USERNAME" \
+  --esxi-password "$ESXI_PASSWORD" \
+  --esxi-datastore "$ESXI_DATASTORE" \
+  --vm-name "$VM_NAME" \
+  --vm-cores "$VM_CORES" \
+  --vm-ram-size "$VM_RAM_SIZE" \
+  --vm-disk-size "$VM_DISK_SIZE" \
+  --vm-network "$VM_NETWORK" \
+  --os-type "$OS_TYPE" \
+  --os-proxy "$OS_PROXY" \
+  --os-username "$OS_USERNAME" \
+  --os-password "$OS_PASSWORD" \
+  --os-domain "$OS_DOMAIN" \
+  --os-locale "$OS_LOCALE" \
+  --os-keyboard-layout "$OS_KEYBOARD_LAYOUT" \
+  --os-timezone "$OS_TIMEZONE"
   ```
