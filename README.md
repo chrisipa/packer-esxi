@@ -37,25 +37,25 @@ This script has been tested with VMWare ESXi version 6. At the moment the follow
 ### Guest IP Hack
 
 * Enable Guest IP Hack:
-  ```
+  ```bash
   esxcli system settings advanced set -o /Net/GuestIPHack -i 1
   ```
 
 ### VNC Ports
 
 * Change permissions on firewall configuration file:
-  ```
+  ```bash
   chmod 644 /etc/vmware/firewall/service.xml
   chmod +t /etc/vmware/firewall/service.xml
   ```
 
 * Open firewall configuration file with vi:
-  ```
+  ```bash
   vi /etc/vmware/firewall/service.xml
   ```
 
 * Add XML block for VNC ports to the end of the firewall configuration file:
-  ```
+  ```xml
   <service id="1000">
     <id>packer-vnc</id>
     <rule id="0000">
@@ -73,24 +73,24 @@ This script has been tested with VMWare ESXi version 6. At the moment the follow
   ```
 
 * Restore permissions on firewall configuration file:
-  ```
+  ```bash
   chmod 444 /etc/vmware/firewall/service.xml
   ```
 
 * Restart firewall service:
-  ```
+  ```bash
   esxcli network firewall refresh
   ```
 
 ## Provisioner
 
 * Install additional software packages:
-  ```
+  ```bash
   sudo apt-get install git sshpass
   ```
 
 * Download and install packer from the website:
-  ```
+  ```bash
   wget https://releases.hashicorp.com/packer/1.0.0/packer_1.0.0_linux_amd64.zip
   sudo unzip packer_1.0.0_linux_amd64.zip -d /usr/local/bin
   rm -f packer_1.0.0_linux_amd64.zip
@@ -101,17 +101,17 @@ This script has been tested with VMWare ESXi version 6. At the moment the follow
 ## Plain Linux
 
 * Checkout project from GitHub:
-  ```
+  ```bash
   git clone https://github.com/chrisipa/packer-esxi.git
   ```
 
 * Change to project directory:
-  ```
+  ```bash
   cd packer-esxi
   ```
 
 * Run packer-esxi command:
-  ```
+  ```bash
   ./packer-esxi --help
 
   --------------------------
@@ -165,7 +165,7 @@ This script has been tested with VMWare ESXi version 6. At the moment the follow
 ## Docker
 
 * Run via docker command:
-  ```
+  ```bash
   docker run --rm -v $HOME/.packer:/root/.packer -it chrisipa/packer-esxi
   ```
 
@@ -178,10 +178,17 @@ This script has been tested with VMWare ESXi version 6. At the moment the follow
 ![Screenshot](https://raw.githubusercontent.com/chrisipa/packer-esxi/master/public/jenkins-integration.png)
 
 * Just execute a shell command with the following content:
-  ```
+  ```bash
   #!/bin/bash +x
 
-  docker run --rm -v $HOME/.packer:/root/.packer -t chrisipa/packer-esxi \
+  # specify image name
+  imageName="chrisipa/packer-esxi"
+
+  # pull docker image from registry
+  docker pull "$imageName"
+
+  # execute docker run
+  docker run --rm -v $HOME/.packer:/root/.packer -t "$imageName" \
   --esxi-server $ESXI_SERVER \
   --esxi-username $ESXI_USERNAME \
   --esxi-password $ESXI_PASSWORD \
