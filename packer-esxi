@@ -5,6 +5,7 @@ set -e
 
 # configuration
 export PACKER_CACHE_DIR="$HOME/.packer"
+export PACKER_NO_COLOR="true"
 
 # calculate variables
 scriptPath="$(readlink -f $0)"
