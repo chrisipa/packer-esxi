@@ -12,7 +12,7 @@
     "iso_checksum_type": "sha256",
 
     "ssh_username": "${osUsername}",
-    "ssh_password": "${osUsername}",
+    "ssh_password": "${osPassword}",
     "ssh_timeout": "30m",
 
     "disk_type_id": "thin",
