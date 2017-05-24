@@ -34,7 +34,7 @@
         "initrd=/install/initrd.gz -- <enter>"
     ],
 
-    "shutdown_command": "echo 'shutdown -P now' > shutdown.sh ; echo '${osUsername}' | sudo -S sh 'shutdown.sh'",
+    "shutdown_command": "echo '${osUsername}' | sudo -S shutdown -P now",
 
     "remote_type": "esx5",
     "remote_host": "${esxiServer}",
