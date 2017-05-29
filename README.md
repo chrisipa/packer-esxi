@@ -17,6 +17,7 @@ This script has been tested with VMWare ESXi version 6. At the moment the follow
 * Customize virtual machine with bash, ansible, chef, puppet and many more
 * Power off virtual machine and cleanup resources
 * Power on virtual machine to work with
+* Optional Docker Engine installation
 
 # Prerequisites
 
@@ -139,6 +140,7 @@ This script has been tested with VMWare ESXi version 6. At the moment the follow
     --os-keyboard-layout  <layout>        The keyboard layout of the OS
     --os-locale           <locale>        The locale of the OS
     --os-timezone         <timezone>      The timezone of the OS
+    --os-docker           <boolean>       Install docker engine in the OS
     --help                                Print this help text
 
   Example:
@@ -159,6 +161,7 @@ This script has been tested with VMWare ESXi version 6. At the moment the follow
        --os-locale de_DE.UTF-8 \
        --os-keyboard-layout de \
        --os-timezone Europe/Berlin
+       --os-docker true
 
   ```
 
@@ -206,4 +209,5 @@ This script has been tested with VMWare ESXi version 6. At the moment the follow
   --os-locale "$OS_LOCALE" \
   --os-keyboard-layout "$OS_KEYBOARD_LAYOUT" \
   --os-timezone "$OS_TIMEZONE"
+  --os-docker "$OS_DOCKER"
   ```

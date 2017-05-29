@@ -62,7 +62,7 @@ Options:
   --os-keyboard-layout  <layout>        The keyboard layout of the OS
   --os-locale           <locale>        The locale of the OS
   --os-timezone         <timezone>      The timezone of the OS
-  --os-docker           <boolean>       Install docker in the os
+  --os-docker           <boolean>       Install docker engine in the OS
   --help                                Print this help text
 
 Example:
