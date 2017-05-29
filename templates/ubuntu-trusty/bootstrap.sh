@@ -31,6 +31,29 @@ echo "" >> "$bashrcFile"
 echo "alias l='ls -altrh'" >> "$bashrcFile"
 echo "alias ..='cd ..'" >> "$bashrcFile"
 
+# install docker engine?
+if [ "${osDocker}" == "true" ]
+then
+
+    # install additional helper packages
+    apt-get install -y apt-transport-https ca-certificates curl linux-image-extra-$(uname -r) linux-image-extra-virtual software-properties-common
+
+    # add gpg key
+    curl -x "${osProxy}" -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+
+    # add apt sources to list
+    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+
+    # update package repos
+    apt-get update
+
+    # install docker community edition
+    apt-get install -y docker-ce
+
+    # allow execution of docker command without sudo
+    gpasswd -a ${osUsername} docker
+fi
+
 # get default IP address
 ipAddress="$(ip route get 8.8.8.8 | head -1 | cut -d' ' -f8)"
 

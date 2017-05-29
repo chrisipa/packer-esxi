@@ -62,6 +62,7 @@ Options:
   --os-keyboard-layout  <layout>        The keyboard layout of the OS
   --os-locale           <locale>        The locale of the OS
   --os-timezone         <timezone>      The timezone of the OS
+  --os-docker           <boolean>       Install docker in the os
   --help                                Print this help text
 
 Example:
@@ -81,7 +82,8 @@ Example:
      --os-domain my.domain \\
      --os-locale de_DE.UTF-8 \\
      --os-keyboard-layout de \\
-     --os-timezone Europe/Berlin
+     --os-timezone Europe/Berlin \\
+     --os-docker true
 
 USAGE
 
@@ -157,6 +159,9 @@ do
         --os-timezone)
             osTimezone="${arguments[i]}"
         ;;
+        --os-docker)
+            osDocker="${arguments[i]}"
+        ;;
         --help)
             usage
         ;;
@@ -182,6 +187,7 @@ if [ "$osDomain" == "" ] ; then read -p "OS Domain: " osDomain ; fi
 if [ "$osKeyboardLayout" == "" ] ; then read -p "OS Keyboard Layout: " osKeyboardLayout ; fi
 if [ "$osLocale" == "" ] ; then read -p "OS Locale: " osLocale ; fi
 if [ "$osTimezone" == "" ] ; then read -p "OS Timezone: " osLocale ; fi
+if [ "$osDocker" == "" ] ; then read -p "OS Docker: " osDocker ; fi
 
 # reset proxy server variable if not a valid address
 if [[ "$osProxy" != http* ]]
@@ -221,6 +227,7 @@ sed -i 's|'\${osDomain}'|'$osDomain'|g' "$packerFile" "$preseedFile" "$bootstrap
 sed -i 's|'\${osKeyboardLayout}'|'$osKeyboardLayout'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
 sed -i 's|'\${osLocale}'|'$osLocale'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
 sed -i 's|'\${osTimezone}'|'$osTimezone'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
+sed -i 's|'\${osDocker}'|'$osDocker'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
 sed -i 's|'\${tmpFolder}'|'$tmpFolder'|g' "$packerFile" "$preseedFile" "$bootstrapFile"
 
 # create esxi vm with packer
