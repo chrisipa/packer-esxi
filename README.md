@@ -17,7 +17,6 @@ This script has been tested with VMWare ESXi version 6. At the moment the follow
 * Customize virtual machine with bash, ansible, chef, puppet and many more
 * Power off virtual machine and cleanup resources
 * Power on virtual machine to work with
-* Optional Docker Engine installation
 
 # Prerequisites
 
