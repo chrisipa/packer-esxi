@@ -34,7 +34,7 @@
         "initrd=/install/initrd.gz -- <enter>"
     ],
 
-    "shutdown_command": "echo '${osUsername}' | sudo -S shutdown -P now",
+    "shutdown_command": "echo '${osPassword}' | sudo -S shutdown -P now",
 
     "remote_type": "esx5",
     "remote_host": "${esxiServer}",
@@ -57,7 +57,7 @@
         "${tmpFolder}/bootstrap.sh"
       ],
 
-      "execute_command": "echo '${osUsername}' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
+      "execute_command": "echo '${osPassword}' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
     }
   ]
 }
