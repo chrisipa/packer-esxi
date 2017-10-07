@@ -4,8 +4,8 @@ MAINTAINER Christoph Papke <info@papke.it>
 # set environment variables
 ENV SCRIPT_NAME packer-esxi
 ENV ROOT_FOLDER /opt/${SCRIPT_NAME}
-ENV PACKER_VERSION 1.0.0
-ENV PACKER_CHECKSUM 7b4adb98454fbfff7ef673245d345293
+ENV PACKER_VERSION 1.1.0
+ENV PACKER_CHECKSUM 0d6d6cd689fc22b87eb67d636c4fbf4c 
 ENV PACKER_FILE_NAME packer_${PACKER_VERSION}_linux_amd64.zip
 ENV PACKER_URL https://releases.hashicorp.com/packer/${PACKER_VERSION}/${PACKER_FILE_NAME}
 
