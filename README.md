@@ -159,7 +159,7 @@ This script has been tested with VMWare ESXi version 6. At the moment the follow
        --os-domain my.domain \
        --os-locale de_DE.UTF-8 \
        --os-keyboard-layout de \
-       --os-timezone Europe/Berlin
+       --os-timezone Europe/Berlin \
        --os-docker true
 
   ```
