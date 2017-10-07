@@ -207,6 +207,6 @@ This script has been tested with VMWare ESXi version 6. At the moment the follow
   --os-domain "$OS_DOMAIN" \
   --os-locale "$OS_LOCALE" \
   --os-keyboard-layout "$OS_KEYBOARD_LAYOUT" \
-  --os-timezone "$OS_TIMEZONE"
+  --os-timezone "$OS_TIMEZONE" \
   --os-docker "$OS_DOCKER"
   ```
