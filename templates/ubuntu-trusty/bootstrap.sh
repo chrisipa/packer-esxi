@@ -52,6 +52,14 @@ then
 
     # allow execution of docker command without sudo
     gpasswd -a ${osUsername} docker
+    
+    # download docker-compose and make executable
+    curl -L https://github.com/docker/compose/releases/download/1.16.1/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+    chmod +x /usr/local/bin/docker-compose
+    
+    # download docker-compose-wrapper and make executable
+    curl -L https://raw.githubusercontent.com/chrisipa/docker-compose-wrapper/master/docker-compose-wrapper -o /usr/local/bin/docker-compose-wrapper
+    chmod +x /usr/local/bin/docker-compose-wrapper
 fi
 
 # get default IP address
