@@ -60,6 +60,16 @@ then
     # download docker-compose-wrapper and make executable
     curl -x "${osProxy}" -L https://raw.githubusercontent.com/chrisipa/docker-compose-wrapper/master/docker-compose-wrapper -o /usr/local/bin/docker-compose-wrapper
     chmod +x /usr/local/bin/docker-compose-wrapper
+    
+    # if proxy is set
+    if [ "${osProxy}" != "" ]
+    then
+        # set proxy for docker daemon
+        echo -e '\n\nexport http_proxy="${osProxy}"' >> /etc/default/docker
+        
+        # restart docker daemon
+        service docker restart
+    fi    
 fi
 
 # get default IP address
