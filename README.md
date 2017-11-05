@@ -32,55 +32,22 @@ This script has been tested with VMWare ESXi version 6. At the moment the follow
 
 ![Screenshot](https://raw.githubusercontent.com/chrisipa/packer-esxi/master/public/esxi-enable-ssh.png)
 
-* Connect to ESXi host via SSH
+### Allow network communication for Packer
 
-### Guest IP Hack
-
-* Enable Guest IP Hack:
+* Download init script to local PC:
   ```bash
-  esxcli system settings advanced set -o /Net/GuestIPHack -i 1
+  wget http://raw.githubusercontent.com/chrisipa/packer-esxi/master/local.sh
   ```
-
-### VNC Ports
-
-* Change permissions on firewall configuration file:
+  
+* Copy init script to ESXi host via ssh
   ```bash
-  chmod 644 /etc/vmware/firewall/service.xml
-  chmod +t /etc/vmware/firewall/service.xml
-  ```
-
-* Open firewall configuration file with vi:
+  scp local.sh root@esxi:/etc/rc.local.d/local.sh
+  ```  
+  
+* Make init script executable on ESXi host
   ```bash
-  vi /etc/vmware/firewall/service.xml
-  ```
-
-* Add XML block for VNC ports to the end of the firewall configuration file:
-  ```xml
-  <service id="1000">
-    <id>packer-vnc</id>
-    <rule id="0000">
-      <direction>inbound</direction>
-      <protocol>tcp</protocol>
-      <porttype>dst</porttype>
-      <port>
-        <begin>5900</begin>
-        <end>6000</end>
-      </port>
-    </rule>
-    <enabled>true</enabled>
-    <required>true</required>
-  </service>
-  ```
-
-* Restore permissions on firewall configuration file:
-  ```bash
-  chmod 444 /etc/vmware/firewall/service.xml
-  ```
-
-* Restart firewall service:
-  ```bash
-  esxcli network firewall refresh
-  ```
+  ssh root@esxi chmod +x /etc/rc.local.d/local.sh
+  ```  
 
 ## Provisioner
 
