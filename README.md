@@ -39,7 +39,7 @@ This script has been tested with VMWare ESXi version 6. At the moment the follow
   wget http://raw.githubusercontent.com/chrisipa/packer-esxi/master/local.sh
   ```
   
-* Copy init script to ESXi host via ssh
+* Copy init script to ESXi host via SSH
   ```bash
   scp local.sh root@esxi:/etc/rc.local.d/local.sh
   ```  
