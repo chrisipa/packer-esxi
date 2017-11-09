@@ -47,9 +47,14 @@ This script has been tested with VMWare ESXi version 6. At the moment the follow
 * Make init script executable on ESXi host
   ```bash
   ssh root@esxi chmod +x /etc/rc.local.d/local.sh
-  ```  
+  ```
 
-## Provisioner
+* Execute init script on ESXi host once
+  ```bash
+  ssh root@esxi /etc/rc.local.d/local.sh
+  ```
+
+## Packer Host
 
 * Install additional software packages:
   ```bash
